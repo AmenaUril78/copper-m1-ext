@@ -105,13 +105,13 @@ export default function Home() {
                       height={1254}
                       className="mx-auto h-auto w-full max-w-xs"
                     />
-                    <div className="flex items-baseline justify-between gap-4">
+                    <div className="flex flex-col gap-1">
                       <h3 className="text-2xl font-semibold">{product.name}</h3>
-                      <span className="text-xl font-bold">
+                      <p className="text-4xl font-bold">
                         {formatUsd(product.priceUsd)}
-                      </span>
+                      </p>
+                      <p className="text-muted-foreground">{product.type}</p>
                     </div>
-                    <p className="text-muted-foreground">{product.type}</p>
                     <ul className="flex flex-col gap-2">
                       {product.features.map((feature) => (
                         <li key={feature.name}>
