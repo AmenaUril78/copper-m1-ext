@@ -11,6 +11,7 @@ import {
   getPlans,
   getPrivacySummary,
   getProducts,
+  type Plan,
 } from "@/lib/copper/catalog";
 
 // Alt text, captions and sizes for the lifestyle photos, keyed by image path.
@@ -38,6 +39,12 @@ const LIFESTYLE: Record<
     height: 1024,
   },
 };
+
+// What paying yearly saves over twelve monthly payments, worked out from the
+// catalog so it follows any price change.
+function yearlySavings(plan: Plan): number {
+  return Math.round((plan.monthlyUsd * 12 - plan.annualUsd) * 100) / 100;
+}
 
 export default function Home() {
   const products = getProducts();
@@ -105,12 +112,16 @@ export default function Home() {
                       height={1254}
                       className="mx-auto h-auto w-full max-w-xs"
                     />
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-3">
                       <h3 className="text-2xl font-semibold">{product.name}</h3>
-                      <p className="text-4xl font-bold">
-                        {formatUsd(product.priceUsd)}
-                      </p>
-                      <p className="text-muted-foreground">{product.type}</p>
+                      <div className="bg-secondary flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-lg px-4 py-3">
+                        <p className="text-primary text-4xl font-bold tracking-tight">
+                          {formatUsd(product.priceUsd)}
+                        </p>
+                        <p className="text-muted-foreground text-sm">
+                          {product.type}
+                        </p>
+                      </div>
                     </div>
                     <ul className="flex flex-col gap-2">
                       {product.features.map((feature) => (
@@ -181,17 +192,28 @@ export default function Home() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-4">
-                      <p className="text-3xl font-bold">
-                        {formatUsd(plan.monthlyUsd)}
-                        <span className="text-muted-foreground text-base font-normal">
-                          /month
-                        </span>
-                      </p>
-                      {isPlus && (
-                        <p className="text-muted-foreground">
-                          or {formatUsd(plan.annualUsd)}/year
+                      <div className="flex flex-col gap-1">
+                        <p
+                          className={`text-5xl font-bold tracking-tight ${isPlus ? "text-primary" : ""}`}
+                        >
+                          {formatUsd(plan.monthlyUsd)}
+                          <span className="text-muted-foreground text-base font-normal">
+                            /month
+                          </span>
                         </p>
-                      )}
+                        {isPlus && (
+                          <>
+                            <p className="text-muted-foreground">
+                              or {formatUsd(plan.annualUsd)}/year
+                            </p>
+                            {yearlySavings(plan) > 0 && (
+                              <Badge variant="secondary" className="mt-1 w-fit">
+                                Save {formatUsd(yearlySavings(plan))} a year
+                              </Badge>
+                            )}
+                          </>
+                        )}
+                      </div>
                       <ul className="flex flex-col gap-2">
                         <li>Memory kept: {formatMemory(plan.memoryDays)}</li>
                         <li>
